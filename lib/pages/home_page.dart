@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:habit_app/util/habit_tiles.dart';
 
@@ -19,9 +21,36 @@ class _HomePageState extends State<HomePage> {
   ];
 
   void habitStarted(int index) {
+    var startTime = DateTime.now();
+
+    // include the time already elapsed
+    int elapsedTime = habitList[index][2];
+
+    // start and stop
     setState(() {
       habitList[index][1] = !habitList[index][1];
     });
+
+    if (habitList[index][1]) {
+      // keep the time going
+      Timer.periodic(Duration(seconds: 1), (timer) {
+        setState(() {
+          // check if the button stop was pressed
+          if (habitList[index][1] == false) {
+            timer.cancel();
+          }
+
+          // calculate the time elapsed by camparing current time and start time
+          var currentTime = DateTime.now();
+          habitList[index][2] =
+              elapsedTime +
+              currentTime.second -
+              startTime.second +
+              60 * (currentTime.minute - startTime.minute) +
+              60 * 60 * (currentTime.hour - startTime.hour);
+        });
+      });
+    }
   }
 
   void settingsOpened(int index) {
@@ -40,7 +69,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.grey[900],
         title: Text(
-          "Consistency is key.",
+          "Work Smart And Hard 💪",
           style: TextStyle(color: Colors.grey[100]),
         ),
         centerTitle: false,

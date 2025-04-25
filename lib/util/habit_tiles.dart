@@ -19,6 +19,29 @@ class HabitTiles extends StatelessWidget {
     required this.timeSpent,
   });
 
+  // convert seconds into min:sec
+  String formatToMinAndSec(int totalSeconds) {
+    String secs = (totalSeconds % 60).toString();
+    String mins = (totalSeconds / 60).toStringAsFixed(5);
+
+    // if secs is a 1 digt number
+    if (secs.length == 1) {
+      secs = '0' + secs;
+    }
+
+    // if mins is a 1 digit number
+    if (mins[1] == '.') {
+      mins = mins.substring(0, 1);
+    }
+
+    return mins + ':' + secs;
+  }
+
+  // calculate progress
+  double percentCompleted() {
+    return timeSpent / (timeGoal * 60);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -44,7 +67,14 @@ class HabitTiles extends StatelessWidget {
                         CircularPercentIndicator(
                           radius: 30,
                           lineWidth: 5.0,
-                          progressColor: Colors.green,
+                          percent:
+                              percentCompleted() < 1 ? percentCompleted() : 1,
+                          progressColor:
+                              percentCompleted() > 0.5
+                                  ? (percentCompleted() > 0.75
+                                      ? Colors.green
+                                      : Colors.orange)
+                                  : Colors.red,
                           backgroundColor: Colors.grey[300]!,
                           circularStrokeCap: CircularStrokeCap.round,
                           animation: true,
@@ -78,7 +108,7 @@ class HabitTiles extends StatelessWidget {
 
                     // Progress
                     Text(
-                      '$timeSpent / $timeGoal',
+                      '${formatToMinAndSec(timeSpent)} / $timeGoal = ${(percentCompleted() * 100).toStringAsFixed(0)}%',
                       style: TextStyle(color: Colors.grey),
                     ),
                   ],
